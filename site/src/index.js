@@ -11,6 +11,7 @@ import NextWater from './NextWater';
 import WaterDuration from './WaterDuration';
 import TimeBetweenWater from './TimeBetweenWater';
 import WaterTimes from './WaterTimes';
+import FlowRate from './FlowRate';
 import moment from 'moment';
 
 class Index extends React.Component {
@@ -30,8 +31,7 @@ class Index extends React.Component {
                 
                 <WaterDuration></WaterDuration>
                 
-                <h2>Flow Rate</h2>
-                <h3>Normal</h3>
+                <FlowRate></FlowRate>
             </div>
         )
 
