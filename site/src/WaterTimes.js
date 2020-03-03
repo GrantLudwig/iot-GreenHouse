@@ -5,8 +5,8 @@ class WaterTimes extends React.Component {
     constructor(props) {
         super(props);     
         this.state = {
-            startTime: "00:00",
-            endTime: "00:00"
+            startTime: "",
+            endTime: ""
         };
     }
     
@@ -24,10 +24,22 @@ class WaterTimes extends React.Component {
         return (
             <div className="Water-times">
                 <h2>Watering Times:</h2>
-                <h3> {this.calcTime(this.state.startTime)} - {this.calcTime(this.state.startTime)} </h3>
+                <h3> {this.calcFull(this.state.startTime, this.state.endTime)} </h3>
                 <button>Change</button>
             </div>
         );
+    }
+    
+    calcFull(start, end) {
+        if (end == 1440) {
+            end = 0;
+        }
+        if (start == end) {
+            return "All day";
+        }
+        
+        var returnString = this.calcTime(start);
+        return returnString + " - " + this.calcTime(end);
     }
     
     // time in min, convert to time 24H

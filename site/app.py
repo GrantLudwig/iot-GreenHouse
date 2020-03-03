@@ -32,7 +32,7 @@ def readAndInitVars():
     waterEndTime = int(vars[3])
     lastWater = int(vars[4])
 
-    #print(waterDuration, timeBetweenWatering, waterStartTime, waterEndTime)
+    #print(waterDuration, timeBetweenWatering, waterStartTime, waterEndTime, lastWater)
     file.close()
 
 def writeVars():
@@ -69,6 +69,8 @@ def getWaterTimes():
     global waterStartTime
     global waterEndTime
 
+    #print(waterStartTime, waterEndTime)
+
     response = json.dumps({"start": waterStartTime, "end": waterEndTime})
     return Response(response=response, status=200, mimetype="application/json")
 
@@ -95,6 +97,17 @@ def nextWater():
 
     response = json.dumps({"lastWater": lastWater, "nextWater": waterNext})
     return Response(response = response, status = 200, mimetype = "application/json")
+
+@app.route('/flowRate', methods=['GET'])
+def flowRate():
+
+    # TODO
+    # Get flow rate
+    # Determine if its normal or abnormal
+    sendString = "Normal"
+
+    response = json.dumps({"rate": sendString})
+    return Response(response=response, status=200, mimetype="application/json")
 
 @app.route('/test', methods=['PUT'])
 def test():
