@@ -18,12 +18,9 @@ class TimeBetweenWater extends React.Component {
     
     render() {
         return (
-            <div className="App-water-duration">
+            <div className="Time-between-water">
                 <h2>Time Between Watering</h2>
-                <h3>
-                    {this.calcDuration(this.state.duration)}
-                </h3>
-                {this.calcDuration(0)}
+                {this.calcDuration(this.state.duration)}
                 <button>Change</button>
             </div>
         );

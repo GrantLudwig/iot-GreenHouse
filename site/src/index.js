@@ -10,8 +10,17 @@ import Clock from './Clock';
 import NextWater from './NextWater';
 import WaterDuration from './WaterDuration';
 import TimeBetweenWater from './TimeBetweenWater';
+import WaterTimes from './WaterTimes';
+import moment from 'moment';
 
 class Index extends React.Component {
+    constructor(props) {
+        super(props);     
+        this.state = {
+            time: moment(moment().add(60, 'seconds')).fromNow()
+        };
+    }
+    
     render() {
         return (
             <div className="App">
@@ -20,11 +29,9 @@ class Index extends React.Component {
                 
                 <button>Manually Water</button>
                 
-                <NextWater></NextWater>
                 
-                <h2>Watering Times:</h2>
-                <h3>00:00 - 00:00</h3>
-                <button>Change</button>
+                
+                <WaterTimes></WaterTimes>
                 
                 <TimeBetweenWater></TimeBetweenWater>
                 
@@ -32,6 +39,8 @@ class Index extends React.Component {
                 
                 <h2>Flow Rate</h2>
                 <h3>Normal</h3>
+                
+                <p> {this.state.time} </p>
             </div>
         )
 

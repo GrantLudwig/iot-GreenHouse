@@ -12,6 +12,7 @@ waterDuration = 5 # in seconds
 timeBetweenWatering = 30 # in minutes
 waterStartTime = 3 # in minutes
 waterEndTime = 123 # in minutes
+lastWater = 0 # python time
 
 app = Flask(__name__)
 CORS(app)
@@ -21,6 +22,7 @@ def readAndInitVars():
     global timeBetweenWatering
     global waterStartTime
     global waterEndTime
+    global lastWater
 
     file = open("variables.txt", "r")
     vars = file.readlines()
@@ -28,6 +30,7 @@ def readAndInitVars():
     timeBetweenWatering = int(vars[1])
     waterStartTime = int(vars[2])
     waterEndTime = int(vars[3])
+    lastWater = int(vars[4])
 
     #print(waterDuration, timeBetweenWatering, waterStartTime, waterEndTime)
     file.close()
@@ -37,12 +40,14 @@ def writeVars():
     global timeBetweenWatering
     global waterStartTime
     global waterEndTime
+    global lastWater
 
     file = open("variables.txt", "w")
     file.write(str(waterDuration) + "\n")
     file.write(str(timeBetweenWatering) + "\n")
     file.write(str(waterStartTime) + "\n")
     file.write(str(waterEndTime) + "\n")
+    file.write(str(lastWater) + "\n")
     file.close()
 
 @app.route('/wateringDuration', methods=['GET'])
@@ -59,18 +64,36 @@ def wateringDelay():
     response = json.dumps({"timeMin": timeBetweenWatering})
     return Response(response = response, status = 200, mimetype = "application/json")
 
+@app.route('/getWaterTimes', methods=['GET'])
+def getWaterTimes():
+    global waterStartTime
+    global waterEndTime
+
+    response = json.dumps({"start": waterStartTime, "end": waterEndTime})
+    return Response(response=response, status=200, mimetype="application/json")
+
 @app.route('/waterStartTime', methods=['GET'])
 def waterStart():
-    global timeBetweenWatering
+    global waterStartTime
 
     response = json.dumps({"timeMin": waterStartTime})
     return Response(response = response, status = 200, mimetype = "application/json")
 
 @app.route('/waterEndTime', methods=['GET'])
 def waterEnd():
-    global timeBetweenWatering
+    global waterEndTime
 
     response = json.dumps({"timeMin": waterEndTime})
+    return Response(response = response, status = 200, mimetype = "application/json")
+
+# returns the last water time, in seconds, and the next water time, in seconds
+@app.route('/nextWater', methods=['GET'])
+def nextWater():
+    global lastWater
+
+    waterNext = lastWater + (timeBetweenWatering * 60)
+
+    response = json.dumps({"lastWater": lastWater, "nextWater": waterNext})
     return Response(response = response, status = 200, mimetype = "application/json")
 
 @app.route('/test', methods=['PUT'])
