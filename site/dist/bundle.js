@@ -27344,15 +27344,10 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var Index = function (_React$Component) {
     _inherits(Index, _React$Component);
 
-    function Index(props) {
+    function Index() {
         _classCallCheck(this, Index);
 
-        var _this = _possibleConstructorReturn(this, (Index.__proto__ || Object.getPrototypeOf(Index)).call(this, props));
-
-        _this.state = {
-            time: (0, _moment2.default)((0, _moment2.default)().add(60, 'seconds')).fromNow()
-        };
-        return _this;
+        return _possibleConstructorReturn(this, (Index.__proto__ || Object.getPrototypeOf(Index)).apply(this, arguments));
     }
 
     _createClass(Index, [{
@@ -27372,6 +27367,7 @@ var Index = function (_React$Component) {
                     null,
                     'Manually Water'
                 ),
+                _react2.default.createElement(_NextWater2.default, null),
                 _react2.default.createElement(_WaterTimes2.default, null),
                 _react2.default.createElement(_TimeBetweenWater2.default, null),
                 _react2.default.createElement(_WaterDuration2.default, null),
@@ -27384,13 +27380,6 @@ var Index = function (_React$Component) {
                     'h3',
                     null,
                     'Normal'
-                ),
-                _react2.default.createElement(
-                    'p',
-                    null,
-                    ' ',
-                    this.state.time,
-                    ' '
                 )
             );
         }
@@ -40310,6 +40299,10 @@ var _react = __webpack_require__(18);
 
 var _react2 = _interopRequireDefault(_react);
 
+var _moment = __webpack_require__(0);
+
+var _moment2 = _interopRequireDefault(_moment);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -40327,13 +40320,13 @@ var Clock = function (_React$Component) {
         var _this = _possibleConstructorReturn(this, (Clock.__proto__ || Object.getPrototypeOf(Clock)).call(this, props));
 
         _this.state = {
-            time: new Date().toLocaleString()
+            time: (0, _moment2.default)().format('MMMM Do YYYY, h:mm a')
         };
         return _this;
     }
 
     _createClass(Clock, [{
-        key: "componentDidMount",
+        key: 'componentDidMount',
         value: function componentDidMount() {
             var _this2 = this;
 
@@ -40342,23 +40335,23 @@ var Clock = function (_React$Component) {
             }, 1000);
         }
     }, {
-        key: "componentWillUnmount",
+        key: 'componentWillUnmount',
         value: function componentWillUnmount() {
             clearInterval(this.intervalID);
         }
     }, {
-        key: "tick",
+        key: 'tick',
         value: function tick() {
             this.setState({
-                time: new Date().toLocaleString()
+                time: (0, _moment2.default)().format('MMMM Do YYYY, h:mm a')
             });
         }
     }, {
-        key: "render",
+        key: 'render',
         value: function render() {
             return _react2.default.createElement(
-                "p",
-                { className: "App-clock" },
+                'h2',
+                { className: 'App-clock' },
                 this.state.time
             );
         }
@@ -40390,6 +40383,10 @@ var _axios = __webpack_require__(35);
 
 var _axios2 = _interopRequireDefault(_axios);
 
+var _moment = __webpack_require__(0);
+
+var _moment2 = _interopRequireDefault(_moment);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -40407,8 +40404,9 @@ var NextWater = function (_React$Component) {
         var _this = _possibleConstructorReturn(this, (NextWater.__proto__ || Object.getPrototypeOf(NextWater)).call(this, props));
 
         _this.state = {
-            lastWater: "0", // seconds
-            nextWater: "0" // seconds
+            nextWaterMoment: "",
+            nextWaterOutput: "",
+            timeTill: ""
         };
         return _this;
     }
@@ -40428,10 +40426,9 @@ var NextWater = function (_React$Component) {
                     'h3',
                     null,
                     ' ',
-                    this.calcTime(this.state.lastWater),
-                    ' - ',
-                    this.calcTime(this.state.nextWater),
-                    ' '
+                    this.state.nextWaterOutput,
+                    ' ',
+                    this.state.timeTill
                 )
             );
         }
@@ -40440,68 +40437,34 @@ var NextWater = function (_React$Component) {
         value: function componentDidMount() {
             var _this2 = this;
 
-            _axios2.default.get('http://127.0.0.1:5000/getWaterTimes').then(function (response) {
+            _axios2.default.get('http://127.0.0.1:5000/nextWater').then(function (response) {
                 return response.data;
             }).then(function (data) {
                 _this2.setState({
-                    startTime: data.start,
-                    endTime: data.end
+                    nextWaterMoment: _moment2.default.unix(data.nextWater)
+                });
+            }).then(function () {
+                _this2.setState({
+                    nextWaterOutput: _this2.state.nextWaterMoment.format('MMMM, h:mm:ss a'),
+                    timeTill: _this2.state.nextWaterMoment.fromNow()
                 });
             });
+
+            this.intervalID = setInterval(function () {
+                return _this2.tick();
+            }, 1000);
         }
     }, {
-        key: 'calcTime',
-        value: function calcTime(lTime, nTime) {
-            var currTime = Math.floor(Date.now() / 1000);
-            var returnString = "";
-            var hours = Math.floor(time / 60);
-            if (hours > 0) {
-                returnString = hours + ":";
-            }
-            var minLeft = time - hours * 60;
-            if (hours == 0) {
-                returnString += "00:";
-            }
-            if (minLeft < 10) {
-                returnString += "0";
-            }
-            returnString += minLeft;
-
-            return returnString;
+        key: 'componentWillUnmount',
+        value: function componentWillUnmount() {
+            clearInterval(this.intervalID);
         }
     }, {
-        key: 'calcDuration',
-        value: function calcDuration(time) {
-            var returnString = "";
-            var hours = Math.floor(time / 60);
-            if (hours > 0) {
-                returnString = hours;
-                if (hours > 1) {
-                    returnString += " hours";
-                } else {
-                    returnString += " hour";
-                }
-            }
-            var minLeft = time - hours * 60;
-            if (minLeft > 0) {
-                if (returnString.length > 0) {
-                    returnString += " ";
-                }
-                returnString += minLeft;
-                if (minLeft > 1) {
-                    returnString += " minutes";
-                } else {
-                    returnString += " minute";
-                }
-            }
-
-            return _react2.default.createElement(
-                'h3',
-                null,
-                ' ',
-                returnString,
-                ' '
-            );
+        key: 'tick',
+        value: function tick() {
+            this.setState({
+                timeTill: this.state.nextWaterMoment.fromNow()
+            });
         }
     }]);
 
